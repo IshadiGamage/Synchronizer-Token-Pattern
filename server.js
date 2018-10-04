@@ -5,6 +5,7 @@ const session = require('express-session');
 const uuid = require('uuid/v4');
 var path = require('path');
 
+//define the port where server is running
 const port = 3009;
 
 const app = express();
@@ -12,11 +13,12 @@ const app = express();
 var parseForm = bodyParser.urlencoded({ extended: false });
 
 app.use(session({
+    //uuid to create a session Id
     genid: (req) => {
-        return uuid(); //using UUID library for defining session id
+        return uuid();
     },
     name: 'SESSION_ID',
-    secret: ';uQGze+#8>sr4"/b',
+    secret: 'secret',
     resave: false,
     saveUninitialized: false
 }));
@@ -29,19 +31,19 @@ app.use((req, res, next) => {
 
 });
 
-//route to index.html upon loading
+//route to index.html upon with /
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname,'index.html'));
 });
 
 // The endpoint receives the session cookie and based on the session identifier return the CSRF token value.
-app.post('/middleware', parseForm, function (req, res) {
+app.post('/middle', parseForm, function (req, res) {
     var token = req.session.csrfToken; //middleware token
     res.json({ csrfToken: token });
 });
 
 app.post('/login', parseForm, function (req, res, next) {
-    //check password and username matches just for testing.
+
     if((req.body.username == 'ish') && (req.body.password == '123'))
     {
         //console.log('username and password is correct');
@@ -51,7 +53,7 @@ app.post('/login', parseForm, function (req, res, next) {
             err.status = 403;
             return next(err);
         }
-        res.send(`<h1>Login Success ${req.body.username} </h1> <h5>Received CSRF token is valid</h5>`);
+        res.send(`<h1>Login Success ${req.body.username} </h1> <h5>CSRF token is valid</h5>`);
     }
     else {
         res.send(`<h1>Invalid Username or Password </h1>`);
@@ -59,7 +61,7 @@ app.post('/login', parseForm, function (req, res, next) {
 
 });
 
-//print on console that the server is listening on port 3000
+//server is running on port 3009
 app.listen(port, () => {
     console.log(`Listening on localhost:${port}`);
 
